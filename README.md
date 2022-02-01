@@ -1,0 +1,1 @@
+Reading JSON data directly to memory from .json file is not recommended.
