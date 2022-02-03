@@ -18,6 +18,8 @@ setup(
     install_requires=[
         'click',
         'pytest',
+        'pandas',
+        'sphinx',
     ],
 
 )
