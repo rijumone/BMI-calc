@@ -18,7 +18,7 @@ Python module to load JSON data into a `Pandas` dataframe. BMI is subsequently c
 ]
 ```
 
-## Expression to calcuate BMI
+## Expression to calculate BMI
 ```text
 BMI(kg/m^2) = mass(kg) / height(m^2)
 ```
