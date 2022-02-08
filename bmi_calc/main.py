@@ -19,7 +19,7 @@ BMI_MAP = OrderedDict({
 })
 
 BMI_OVERWEIGHT = 25  # bmi greater than this is overweight
-
+BMI_HEIGHT_ADJUST_MULTIPLIER = 0.1
 
 def validate(func):
     '''Will validate json_file_path against common errors.'''
@@ -53,7 +53,11 @@ def cli(json_file_path):
 def main(json_file_path):
     '''Entry point of the module. Calculates BMI and count of overweight people.'''
     dataframe = pd.read_json(json_file_path)
+    # Calculate mean height here
+    mean_height = dataframe['HeightCm'].mean()
+    # print(mean_height)
     dataframe['BMI'] = dataframe.apply(calc_bmi, axis=1,)
+    dataframe['Adjusted BMI'] = dataframe.apply(adj_bmi, axis=1, args=(mean_height, BMI_HEIGHT_ADJUST_MULTIPLIER))
     dataframe['Category'] = dataframe.apply(get_bmi_details, axis=1, args=('Category', ))
     dataframe['HealthRisk'] = dataframe.apply(get_bmi_details, axis=1, args=('HealthRisk', ))
     print(dataframe)
@@ -71,6 +75,18 @@ def calc_bmi(row, ) -> float:
         bmi (float)
     '''
     return row['WeightKg']/((row['HeightCm']/100)**2)
+
+def adj_bmi(row, mean_height, multiplier):
+    '''
+    Adjust BMI based on mean height
+    Reduce by multiplier in case of height below mean
+    Extend by multiplier in case of height above mean
+    '''
+    if row['HeightCm'] < mean_height:
+        return row['BMI'] - (row['BMI'] * multiplier)
+    elif row['HeightCm'] > mean_height:
+        return row['BMI'] + (row['BMI'] * multiplier)
+    return row['BMI']
 
 
 def count_by_bmi(dataframe, bmi):
@@ -101,3 +117,22 @@ def get_bmi_details(row, key):
 if __name__ == '__main__':
     # pylint: disable=no-value-for-parameter
     cli()
+
+'''
+New requirements:
+New research has come in that has found that a person's height can affect their BMI score. The study found that if you are below the average (mean) height, your BMI should be reduced by 10%, and if it is above the average height, it should be increased by 10%.
+
+We need to change our application to accommodate this new research. 
+'''
+
+'''
+/s3/files/2022/02/07/file.json
+/s3/files/2022/02/08/file.json
+
+/s3/files/2022/02/09/file.json
+/s3/files/2022/02/10/file.json
+
+
+
+
+'''
